@@ -2,6 +2,38 @@ version: "3.8"
 
 services:
 
+  order-service:
+    build:
+      context: ./order-service
+    container_name: order-service
+    ports:
+      - "8081:8085"  # mapeado externo diferente
+    env_file:
+      - ./order-service/.env
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka1:19092
+      - INVENTORY_SERVICE_URL=http://inventory-service:8085
+    depends_on:
+      - inventory-service
+      - kafka1
+    networks:
+      - backend-network
+
+  inventory-service:
+    build:
+      context: ./inventory-service
+    container_name: inventory-service
+    ports:
+      - "8082:8085"
+    env_file:
+      - ./inventory-service/.env
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka1:19092
+    depends_on:
+      - kafka1
+    networks:
+      - backend-network
+
   order-consumer:
     build: 
       context: ./kafka-consumer-py
