@@ -1,44 +1,23 @@
 version: "3.8"
 
 services:
-  order-service:
-    build:
-      context: ./order-service
-    container_name: order-service
-    ports:
-      - "8081:8085"  # mapeado externo diferente
-    env_file:
-      - ./order-service/.env
-    depends_on:
-      - inventory-service
-      - kafka
-    networks:
-      - backend-network
 
-  inventory-service:
-    build:
-      context: ./inventory-service
-    container_name: inventory-service
-    ports:
-      - "8082:8085"
+  order-consumer:
+    build: 
+      context: ./kafka-consumer-py
+    container_name: order-consumer
     env_file:
-      - ./inventory-service/.env
+      - ./kafka-consumer-py/.env
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka1:19092
+      - KAFKA_TOPIC=restaurant.orders
+      - KAFKA_GROUP_ID=restaurant-order-consumer
+      - KAFKA_AUTO_OFFSET_RESET=earliest
+      - LOG_LEVEL=INFO
     depends_on:
-      - kafka
-    networks:
-      - backend-network
-  
-  kafka-consumer-service:
-    build:
-      context: ./kafka-consumer
-    container_name: kafka-consumer
-    ports:
-      - "8083:8085"  # mapeado externo diferente
-    env_file:
-      - ./kafka-consumer/.env
-    depends_on:
-      - zoo1
       - kafka1
+      - zoo1
+    restart: unless-stopped
     networks:
       - backend-network
 
