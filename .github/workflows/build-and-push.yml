@@ -1,0 +1,27 @@
+name: Build and Push Services
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: docker.io
+  USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [order-service, inventory-service, kafka-consumer]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${PASSWORD}" | docker login -u "${USERNAME}" --password-stdin
+
+      - name: Build and push ${{ matrix.service }}
+        run: |
+          docker build -t ${USERNAME}/${{ matrix.service }}:latest ./${{ matrix.service }}
+          docker push ${USERNAME}/${{ matrix.service }}:latest
