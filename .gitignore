@@ -1,1 +1,5 @@
 /kafka-consumer-go
+/kafka-consumer-py
+/order-service
+/inventory-service
+.env
