@@ -112,6 +112,14 @@ services:
     networks:
       - backend-network
 
+  cloudflared:
+    container_name: tunnel
+    env_file:
+      - .env
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARED_TOKEN}
+  
+
 volumes:
   kafka-data:
 
